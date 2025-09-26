@@ -1,0 +1,143 @@
+############################
+# Python build / bytecode
+############################
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build artifacts
+build/
+dist/
+wheels/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Packaging helpers / logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+############################
+# Virtual environments / runtime
+############################
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+############################
+# Env files (never commit secrets)
+############################
+.env
+.env.*
+!.env.example
+
+############################
+# Testing / QA / Coverage
+############################
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+pytestdebug.log
+
+# Type checkers / linters caches
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.dmypy.json
+.pyre/
+
+############################
+# Notebooks
+############################
+.ipynb_checkpoints/
+
+############################
+# Editor / IDE
+############################
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains / PyCharm
+.idea/
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+.#*
+
+############################
+# OS junk
+############################
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+############################
+# Logs / PIDs / Lock files
+############################
+*.log
+*.pid
+*.seed
+*.lock
+
+############################
+# Databases (local runs)
+############################
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
+############################
+# Temporary / Cache / Artifacts
+############################
+.cache/
+tmp/
+temp/
+.tmp/
+artifacts/
+outputs/
+cache/
+
+# Keep docs and examples tracked
+!docs/**
+!examples/**
+
+############################
+# Binaries / Compiled libs
+############################
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.a
+*.o
+
+############################
+# Archives
+############################
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bz2
+*.xz
+*.7z
+
+############################
+# Patch / merge artifacts
+############################
+*.orig
+*.rej
+
