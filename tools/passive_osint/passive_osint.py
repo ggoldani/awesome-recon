@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Purpose: Minimal passive OSINT CLI using only Python's standard library.
-# Why: Start with a zero-dependency tool that's easy to run anywhere.
-# How: Resolve basic DNS (A/AAAA), fetch HTTP/HTTPS headers, and extract TLS certificate info.
+"""
+Minimal passive OSINT CLI using only Python's standard library.
+"""
 
 import argparse
 import json
@@ -11,12 +11,12 @@ import socket
 import ssl
 import http.client
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 
-# Purpose: Resolve A/AAAA addresses for a domain using getaddrinfo (stdlib).
-# Why: We avoid external DNS libraries to keep the first step dependency-free.
-# How: Query AF_UNSPEC to get both IPv4 and IPv6; deduplicate results.
+# Resolve A/AAAA addresses for a domain using the standard library.
+# This avoids external DNS libs for the first step and keeps the tool dependency-free.
+
 def resolve_addresses(domain: str, timeout: float = 5.0) -> Dict[str, List[str]]:
     socket.setdefaulttimeout(timeout)
     ipv4, ipv6 = set(), set()
@@ -27,14 +27,13 @@ def resolve_addresses(domain: str, timeout: float = 5.0) -> Dict[str, List[str]]
             elif family == socket.AF_INET6 and sockaddr:
                 ipv6.add(sockaddr[0])
     except Exception:
-        # Swallow resolution errors and return empty sets
         pass
     return {"A": sorted(ipv4), "AAAA": sorted(ipv6)}
 
 
-# Purpose: Perform a HEAD request and capture response headers over HTTP.
-# Why: Headers reveal server info and security-related hints (server, redirects, etc.).
-# How: Use http.client.HTTPConnection with method="HEAD" and a short timeout.
+# Perform a HEAD request and capture response headers over HTTP.
+# Headers often reveal server software, redirects, cookies and other useful metadata.
+
 def fetch_http_headers(domain: str, timeout: float = 5.0) -> Dict[str, str]:
     headers: Dict[str, str] = {}
     try:
@@ -45,14 +44,13 @@ def fetch_http_headers(domain: str, timeout: float = 5.0) -> Dict[str, str]:
             headers[k] = v
         conn.close()
     except Exception:
-        # Ignore network errors; return empty dict to keep flow simple
         pass
     return headers
 
 
-# Purpose: Perform a HEAD request and capture response headers over HTTPS.
-# Why: Compare HTTP vs HTTPS behavior and note any differences.
-# How: Use http.client.HTTPSConnection with method="HEAD" and a short timeout.
+# Perform a HEAD request and capture response headers over HTTPS.
+# Comparing HTTP vs HTTPS can show differences in security headers or redirects.
+
 def fetch_https_headers(domain: str, timeout: float = 5.0) -> Dict[str, str]:
     headers: Dict[str, str] = {}
     try:
@@ -67,9 +65,9 @@ def fetch_https_headers(domain: str, timeout: float = 5.0) -> Dict[str, str]:
     return headers
 
 
-# Purpose: Retrieve TLS certificate metadata from the target's HTTPS endpoint.
-# Why: Certificates expose issuer, subject, SANs, and validity window — useful for passive recon.
-# How: Create an SSL-wrapped socket, connect to :443, call getpeercert() and extract key fields.
+# Retrieve TLS certificate metadata from the target's HTTPS endpoint.
+# Useful fields: issuer, subject CN, SANs, and validity window.
+
 def fetch_tls_certificate_info(domain: str, timeout: float = 5.0) -> Dict[str, str]:
     info: Dict[str, str] = {}
     try:
@@ -80,7 +78,6 @@ def fetch_tls_certificate_info(domain: str, timeout: float = 5.0) -> Dict[str, s
                 if not cert:
                     return info
 
-                # Extract human-friendly fields
                 subject = dict(x[0] for x in cert.get("subject", []))
                 issuer = dict(x[0] for x in cert.get("issuer", []))
                 not_before = cert.get("notBefore", "")
@@ -102,9 +99,8 @@ def fetch_tls_certificate_info(domain: str, timeout: float = 5.0) -> Dict[str, s
     return info
 
 
-# Purpose: Aggregate all passive findings into a single structured dict.
-# Why: Keep the CLI output predictable for saving/automation later.
-# How: Call each helper, add a timestamp, and return a cohesive object.
+# Aggregate passive findings into a single structured dict for easy consumption.
+
 def collect_passive_osint(domain: str) -> Dict:
     resolved = resolve_addresses(domain)
     http_h = fetch_http_headers(domain)
@@ -121,9 +117,8 @@ def collect_passive_osint(domain: str) -> Dict:
     }
 
 
-# Purpose: Parse CLI arguments and orchestrate execution.
-# Why: Provide a clean user interface with --out optional for JSON file.
-# How: argparse → run collection → print or save JSON.
+# CLI parsing and orchestration. Save JSON if --out provided, otherwise print result.
+
 def main():
     parser = argparse.ArgumentParser(
         description="Minimal passive OSINT (A/AAAA, HTTP/HTTPS headers, TLS cert) — authorized use only."
@@ -142,9 +137,6 @@ def main():
         print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
-# Purpose: Standard Python entry point.
-# Why: Allow running as a script or via module.
-# How: Guarded call to main().
 if __name__ == "__main__":
     main()
 
